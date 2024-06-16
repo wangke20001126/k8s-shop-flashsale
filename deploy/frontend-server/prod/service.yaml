@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: shop-ui
+    component: web
+  name: shop-ui
+  namespace: ks-shop-flashsale
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: shop-ui
+    component: web
+    tier: frontend
+  sessionAffinity: None
+  type: NodePort

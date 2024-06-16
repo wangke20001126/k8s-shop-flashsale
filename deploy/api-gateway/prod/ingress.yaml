@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-gateway-ingress
+  namespace: ks-shop-flashsale
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: api.wolfcode.cn
+    http:
+      paths:
+      - pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 9000
+        path: /

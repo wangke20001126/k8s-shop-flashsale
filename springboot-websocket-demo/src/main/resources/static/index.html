@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Websocket 测试</title>
+  <script src="socket.js"></script>
+</head>
+<body>
+请输入用户id：<input type="text" id="uuid">
+<button onclick="connectWs()">连接</button>
+<br>
+<br>
+<textarea name="msg" id="msg" cols="30" rows="15"></textarea> <br>
+<button onclick="sendMsg()">发送</button>
+<script>
+  let socket;
+
+  function connectWs() {
+    let uuid = document.getElementById('uuid').value;
+    socket = createScoket(uuid)
+  }
+
+  function sendMsg() {
+    let msg = document.getElementById('msg').value;
+    socket.send(msg)
+  }
+</script>
+</body>
+</html>

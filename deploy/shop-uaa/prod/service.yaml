@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: uaa-server
+    component: service
+  name: uaa-server
+  namespace: ks-shop-flashsale
+spec:
+  ports:
+    - name: http
+      port: 8031
+      protocol: TCP
+      targetPort: 8031
+  selector:
+    app: uaa-server
+    component: service
+    tier: backend
+  sessionAffinity: None

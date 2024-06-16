@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: flashsale-server
+    component: gateway
+  name: flashsale-server
+  namespace: ks-shop-flashsale
+spec:
+  ports:
+    - name: http
+      port: 8061
+      protocol: TCP
+      targetPort: 8061
+  selector:
+    app: flashsale-server
+    component: gateway
+    tier: backend
+  sessionAffinity: None
+  type: NodePort

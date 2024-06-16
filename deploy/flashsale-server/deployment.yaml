@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: flashsale-server
+    component: service
+    tier: backend
+  name: flashsale-server
+  namespace: ks-shop-dev
+spec:
+  progressDeadlineSeconds: 600
+  replicas: REPLICAS
+  selector:
+    matchLabels:
+      app: flashsale-server
+      component: service
+      tier: backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 100%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: flashsale-server
+        component: service
+        tier: backend
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: flashsale-server
+          image: REGISTRY/DOCKERHUB_NAMESPACE/APP_NAME:SNAPSHOT-BUILD_NUMBER
+          livenessProbe:
+            httpGet:
+              path: /seckillProduct/queryByTime?time=10
+              port: 8061
+            initialDelaySeconds: 90
+            timeoutSeconds: 5
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /seckillProduct/queryByTime?time=10
+              port: 8061
+            initialDelaySeconds: 90
+            timeoutSeconds: 5
+            failureThreshold: 5
+            periodSeconds: 10
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8061
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - name: app-yml
+              mountPath: /wolfcode/bootstrap.yml
+              subPath: bootstrap.yml
+      volumes:
+        - name: app-yml
+          configMap:
+            name: flashsale-server-yml
+            items:
+            - key: bootstrap.yml
+              path: bootstrap.yml
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

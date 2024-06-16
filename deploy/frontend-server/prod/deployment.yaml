@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: shop-ui
+    component: web
+    tier: frontend
+  name: shop-ui
+  namespace: ks-shop-flashsale
+spec:
+  progressDeadlineSeconds: 600
+  replicas: REPLICAS
+  selector:
+    matchLabels:
+      app: shop-ui
+      component: web
+      tier: frontend
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 100%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: shop-ui
+        component: web
+        tier: frontend
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: shop-ui
+          image: REGISTRY/DOCKERHUB_NAMESPACE/APP_NAME:TAG_NAME
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+            periodSeconds: 10
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 300m
+              memory: 600Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: shop-ui-nginx-conf
+            items:
+            - key: nginx.conf
+              path: nginx.conf
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

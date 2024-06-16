@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api-gateway
+    component: gateway
+  name: api-gateway
+  namespace: ks-shop-flashsale
+spec:
+  ports:
+    - name: http
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
+  selector:
+    app: api-gateway
+    component: gateway
+    tier: backend
+  sessionAffinity: None
+  type: NodePort

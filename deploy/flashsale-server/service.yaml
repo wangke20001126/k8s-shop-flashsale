@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: flashsale-server
+    component: service
+  name: flashsale-server
+  namespace: ks-shop-dev
+spec:
+  ports:
+    - name: http
+      port: 8061
+      protocol: TCP
+      targetPort: 8061
+  selector:
+    app: flashsale-server
+    component: service
+    tier: backend
+  sessionAffinity: None

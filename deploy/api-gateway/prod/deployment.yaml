@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: api-gateway
+    component: gateway
+    tier: backend
+  name: api-gateway
+  namespace: ks-shop-flashsale
+spec:
+  progressDeadlineSeconds: 600
+  replicas: REPLICAS
+  selector:
+    matchLabels:
+      app: api-gateway
+      component: gateway
+      tier: backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 100%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        component: gateway
+        tier: backend
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: api-gateway
+          image: REGISTRY/DOCKERHUB_NAMESPACE/APP_NAME:TAG_NAME
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9000
+            initialDelaySeconds: 90
+            timeoutSeconds: 5
+            failureThreshold: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9000
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 3
+            periodSeconds: 10
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 300m
+              memory: 600Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - name: app-yml
+              mountPath: /wolfcode/bootstrap.yml
+              subPath: bootstrap.yml
+      volumes:
+        - name: app-yml
+          configMap:
+            name: api-gateway-yml
+            items:
+            - key: bootstrap.yml
+              path: bootstrap.yml
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
